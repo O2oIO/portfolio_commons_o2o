@@ -1,0 +1,377 @@
+import React, { useState, useMemo } from 'react';
+import { ChevronDown, Code2, Globe, Zap, Eye } from 'lucide-react';
+
+const InteractivePortfolio = () => {
+  const [expandedProject, setExpandedProject] = useState(null);
+  const [filterTech, setFilterTech] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const projects = [
+    {
+      name: "ExecutiveMeetTracker",
+      description: "Meeting management and executive tracking dashboard",
+      tech: ["React", "Node.js", "Dashboard"],
+      date: "May 2025",
+      category: "Enterprise",
+      details: "A comprehensive dashboard for tracking executive meetings, scheduling, and attendance. Features real-time updates and advanced filtering capabilities.",
+      features: ["Real-time updates", "Executive Dashboard", "Meeting Analytics", "Attendance Tracking"]
+    },
+    {
+      name: "FinancialAdvisor-Suite",
+      description: "Comprehensive financial advisory and management system",
+      tech: ["React", "Financial APIs", "Data Visualization", "Charts"],
+      date: "May 2025",
+      category: "Finance",
+      details: "Full-featured financial advisory platform with portfolio management, investment tracking, and advanced analytics.",
+      features: ["Portfolio Management", "Investment Tracking", "Financial Analytics", "Risk Analysis"]
+    },
+    {
+      name: "Paraclete AI Dashboard",
+      description: "AI-powered analytics and insights dashboard",
+      tech: ["React", "AI/ML", "Real-time Data", "Analytics"],
+      date: "2025",
+      category: "Analytics",
+      details: "Advanced AI-powered dashboard providing predictive analytics and actionable business insights in real-time.",
+      features: ["Predictive Analytics", "AI Insights", "Real-time Data", "Custom Reports"]
+    },
+    {
+      name: "Build-a-web3-Application",
+      description: "Web3 application with Solidity smart contracts",
+      tech: ["React", "Solidity", "Web3", "thirdweb"],
+      date: "2025",
+      category: "Web3",
+      details: "Complete Web3 ecosystem featuring Solidity smart contracts, blockchain integration, and thirdweb SDK.",
+      features: ["Smart Contracts", "Blockchain Integration", "Wallet Connect", "Token Management"]
+    },
+    {
+      name: "JW-JourneyWell",
+      description: "Wellness and journey tracking application",
+      tech: ["React", "Health Tech", "Tracking"],
+      date: "December 2025",
+      category: "Wellness",
+      details: "Comprehensive wellness platform for tracking health metrics, wellness goals, and personal development journeys.",
+      features: ["Health Tracking", "Goal Management", "Progress Analytics", "Community Features"]
+    },
+    {
+      name: "numaConnect",
+      description: "Connection and networking platform",
+      tech: ["React", "Node.js", "Database", "Networking"],
+      date: "May 2025",
+      category: "Social",
+      details: "Advanced networking platform connecting professionals and organizations with intelligent matching algorithms.",
+      features: ["Smart Matching", "Networking Feed", "Direct Messaging", "Profile Analytics"]
+    },
+    {
+      name: "MobileConcierge",
+      description: "Mobile concierge and service platform",
+      tech: ["React", "Mobile", "Services API"],
+      date: "May 2025",
+      category: "Services",
+      details: "On-demand concierge service platform offering mobile-first access to premium services.",
+      features: ["Service Booking", "Mobile App", "Payment Integration", "Real-time Status"]
+    },
+    {
+      name: "BlackCultureChallenge-1",
+      description: "Cultural awareness and educational challenge platform",
+      tech: ["React", "Educational Tech", "Gamification"],
+      date: "May 2025",
+      category: "Education",
+      details: "Interactive educational platform promoting cultural awareness through engaging challenges and learning.",
+      features: ["Interactive Challenges", "Leaderboards", "Educational Content", "Community"]
+    },
+    {
+      name: "Trival-Culture-Triva-Game",
+      description: "Trivia game focused on cultural knowledge",
+      tech: ["React", "Game Development", "Real-time"],
+      date: "May 2025",
+      category: "Gaming",
+      details: "Real-time multiplayer trivia game with cultural content and competitive gameplay.",
+      features: ["Real-time Multiplayer", "Leaderboards", "Achievement System", "Social Features"]
+    },
+    {
+      name: "OLIVE-ENTERPRISE-RESOURCE-HUB",
+      description: "Enterprise resource planning and management hub",
+      tech: ["React", "Enterprise Systems", "ERP"],
+      date: "May 2025",
+      category: "Enterprise",
+      details: "Complete ERP solution for enterprise resource management, workflow optimization, and business intelligence.",
+      features: ["Resource Planning", "Workflow Management", "BI Dashboard", "Integration Hub"]
+    },
+    {
+      name: "Olive-and-Olie-your-enterprise-team",
+      description: "Enterprise team collaboration and management",
+      tech: ["React", "Collaboration Tools", "Team Management"],
+      date: "October 2025",
+      category: "Enterprise",
+      details: "Comprehensive team collaboration platform with project management and enterprise features.",
+      features: ["Team Management", "Project Tracking", "Communication Tools", "Resource Allocation"]
+    },
+    {
+      name: "Gw-devops",
+      description: "DevOps infrastructure and deployment management",
+      tech: ["React", "DevOps", "Infrastructure"],
+      date: "2025",
+      category: "DevOps",
+      details: "Complete DevOps platform for infrastructure management, continuous deployment, and monitoring.",
+      features: ["CI/CD Pipeline", "Infrastructure Management", "Monitoring", "Deployment Automation"]
+    },
+    {
+      name: "MetaverseDeployer",
+      description: "Metaverse deployment and management platform",
+      tech: ["React", "Metaverse", "Web3", "3D"],
+      date: "May 2025",
+      category: "Web3",
+      details: "Advanced platform for deploying and managing metaverse applications and virtual environments.",
+      features: ["Virtual Environment Management", "Asset Deployment", "User Analytics", "3D Integration"]
+    },
+    {
+      name: "Parakletos",
+      description: "Advanced analytics and research platform",
+      tech: ["React", "Data Analytics", "Research"],
+      date: "2025",
+      category: "Analytics",
+      details: "Sophisticated analytics platform for research, data analysis, and business intelligence.",
+      features: ["Advanced Analytics", "Research Tools", "Data Visualization", "Report Generation"]
+    },
+    {
+      name: "OLIVE",
+      description: "Core OLIVE platform",
+      tech: ["React", "Enterprise", "Web3"],
+      date: "May 2025",
+      category: "Enterprise",
+      details: "Foundational enterprise platform combining modern web technologies with blockchain capabilities.",
+      features: ["Core Services", "API Layer", "Authentication", "Web3 Integration"]
+    }
+  ];
+
+  const allTechs = Array.from(new Set(projects.flatMap(p => p.tech)));
+  const allCategories = Array.from(new Set(projects.map(p => p.category)));
+
+  const filteredProjects = useMemo(() => {
+    return projects.filter(project => {
+      const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           project.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTech = filterTech === 'All' || project.tech.includes(filterTech);
+      return matchesSearch && matchesTech;
+    });
+  }, [searchQuery, filterTech]);
+
+  const techColors = {
+    'React': '#61DAFB',
+    'Node.js': '#68A063',
+    'Web3': '#F6851B',
+    'Solidity': '#AA6C39',
+    'AI/ML': '#FF6B6B',
+    'Enterprise': '#1E90FF',
+    'Analytics': '#00CED1'
+  };
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Enterprise': '#3B82F6',
+      'Finance': '#10B981',
+      'Analytics': '#F59E0B',
+      'Web3': '#8B5CF6',
+      'Wellness': '#EC4899',
+      'Social': '#06B6D4',
+      'Services': '#EF4444',
+      'Education': '#14B8A6',
+      'Gaming': '#F97316',
+      'DevOps': '#6366F1'
+    };
+    return colors[category] || '#6B7280';
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-4 md:p-8">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-12">
+        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
+          React Dashboard Portfolio
+        </h1>
+        <p className="text-xl text-slate-300 mb-8">
+          15+ Professional React Applications & Dashboards showcasing enterprise, financial, Web3, and emerging technologies
+        </p>
+
+        {/* Search & Filter */}
+        <div className="space-y-4 mb-8">
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-6 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-cyan-400 text-white placeholder-slate-400"
+          />
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilterTech('All')}
+              className={`px-4 py-2 rounded-full font-medium transition-all ${
+                filterTech === 'All'
+                  ? 'bg-cyan-500 text-white'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              All Technologies
+            </button>
+            {allTechs.slice(0, 8).map(tech => (
+              <button
+                key={tech}
+                onClick={() => setFilterTech(tech)}
+                className={`px-4 py-2 rounded-full font-medium transition-all ${
+                  filterTech === tech
+                    ? 'bg-cyan-500 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                {tech}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+            <div className="text-3xl font-bold text-cyan-400">{projects.length}</div>
+            <div className="text-sm text-slate-400">Total Projects</div>
+          </div>
+          <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+            <div className="text-3xl font-bold text-green-400">{allTechs.length}</div>
+            <div className="text-sm text-slate-400">Technologies</div>
+          </div>
+          <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+            <div className="text-3xl font-bold text-purple-400">{allCategories.length}</div>
+            <div className="text-sm text-slate-400">Categories</div>
+          </div>
+          <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+            <div className="text-3xl font-bold text-blue-400">2025-26</div>
+            <div className="text-sm text-slate-400">Built In</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Projects Grid */}
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProjects.map((project, index) => (
+            <div
+              key={index}
+              className="bg-slate-800/80 border border-slate-700 rounded-lg overflow-hidden hover:border-cyan-500/50 transition-all hover:shadow-xl hover:shadow-cyan-500/10 cursor-pointer group"
+              onClick={() => setExpandedProject(expandedProject === index ? null : index)}
+            >
+              {/* Card Header */}
+              <div className="p-6 border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-700/50">
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-lg font-bold group-hover:text-cyan-400 transition-colors max-w-xs">
+                    {project.name}
+                  </h3>
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                    style={{ backgroundColor: getCategoryColor(project.category) }}
+                  >
+                    {project.category}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-400 mb-3">{project.description}</p>
+                <div className="text-xs text-slate-500">{project.date}</div>
+              </div>
+
+              {/* Tech Tags */}
+              <div className="px-6 py-4 flex flex-wrap gap-2">
+                {project.tech.map((t, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1 bg-slate-700/50 border border-slate-600 rounded-md text-xs font-medium text-slate-300 hover:border-cyan-400/50 transition-colors"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+
+              {/* Expand Button */}
+              <div className="px-6 py-4 border-t border-slate-700 flex items-center justify-between">
+                <button className="flex items-center gap-2 text-cyan-400 text-sm font-medium hover:gap-3 transition-all">
+                  <Eye size={16} />
+                  View Details
+                </button>
+                <ChevronDown
+                  size={20}
+                  className={`transition-transform ${expandedProject === index ? 'rotate-180' : ''}`}
+                />
+              </div>
+
+              {/* Expanded Details */}
+              {expandedProject === index && (
+                <div className="px-6 py-4 bg-slate-900/50 border-t border-slate-700 space-y-4 animate-in fade-in">
+                  <div>
+                    <h4 className="text-sm font-semibold text-cyan-400 mb-2">Overview</h4>
+                    <p className="text-sm text-slate-300">{project.details}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-semibold text-cyan-400 mb-2">Key Features</h4>
+                    <ul className="space-y-1">
+                      {project.features.map((feature, i) => (
+                        <li key={i} className="text-sm text-slate-300 flex items-center gap-2">
+                          <Zap size={14} className="text-green-400" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {filteredProjects.length === 0 && (
+          <div className="text-center py-12">
+            <Globe size={48} className="mx-auto text-slate-600 mb-4" />
+            <p className="text-slate-400 text-lg">No projects match your search</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-700">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <h4 className="font-bold mb-3 text-cyan-400">Technology Stack</h4>
+            <ul className="text-sm text-slate-400 space-y-2">
+              <li>✓ React & Modern JavaScript</li>
+              <li>✓ Node.js Backend</li>
+              <li>✓ Solidity & Web3</li>
+              <li>✓ AI/ML Integration</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-3 text-cyan-400">Capabilities</h4>
+            <ul className="text-sm text-slate-400 space-y-2">
+              <li>✓ Full-Stack Development</li>
+              <li>✓ Enterprise Solutions</li>
+              <li>✓ Real-time Systems</li>
+              <li>✓ Blockchain Integration</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-3 text-cyan-400">Deployment</h4>
+            <ul className="text-sm text-slate-400 space-y-2">
+              <li>✓ Cloud-Ready</li>
+              <li>✓ Scalable Architecture</li>
+              <li>✓ CI/CD Pipeline</li>
+              <li>✓ DevOps Integration</li>
+            </ul>
+          </div>
+        </div>
+        <div className="text-center text-slate-500 text-sm">
+          <p>Portfolio of 15+ Professional React Dashboards & Applications | 2025-2026</p>
+          <p className="mt-2">Built with React, Node.js, Web3, and cutting-edge technologies</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default InteractivePortfolio;
